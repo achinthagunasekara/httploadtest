@@ -62,7 +62,7 @@ func runLoadTest(url string, timeout time.Duration, concurrent int, duration tim
 func main() {
 
 	url := flag.String("url", "", "url to run the load test against")
-	timeout := flag.Int("timeout", 30, "timeout for a given url")
+	timeout := flag.String("timeout", "30s", "timeout for a given url")
 	concurrent := flag.Int("concurrent", 1, "number of tests to run concurrently")
 	duration := flag.String("duration", "30s", "duration to run tests for")
 	debug := flag.Bool("debug", false, "run in debug mode with more infomation on logs")
@@ -78,10 +78,15 @@ func main() {
 		log.Fatal("flag `-url` must be passed in")
 	}
 
-	phrasedDuration, err := time.ParseDuration(*duration)
+	phrasedTimeout, err := time.ParseDuration(*timeout)
 	if err != nil {
-		log.Fatal("please enter a valid duration for duration. e.g: 20s, 20m")
+		log.Fatal("please enter a valid duration for `-timeout` flag. e.g: 20s, 20m")
 	}
 
-	runLoadTest(*url, time.Duration(*timeout)*time.Second, *concurrent, phrasedDuration)
+	phrasedDuration, err := time.ParseDuration(*duration)
+	if err != nil {
+		log.Fatal("please enter a valid duration for `-duration` flag. e.g: 20s, 20m")
+	}
+
+	runLoadTest(*url, phrasedTimeout, *concurrent, phrasedDuration)
 }
