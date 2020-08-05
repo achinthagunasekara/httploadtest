@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -17,7 +18,17 @@ func getUrl(url string, timeout time.Duration, completed chan<- bool) {
 		completed <- false
 		return
 	}
+
 	log.Debugf("http response status: %+v", resp.Status)
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Debugf("failed to read the body: %v", err)
+		completed <- false
+		return
+	}
+
 	completed <- true
 }
 
